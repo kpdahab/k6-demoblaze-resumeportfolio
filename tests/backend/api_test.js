@@ -1,53 +1,61 @@
 import http from 'k6/http';
 import { check } from 'k6';
-import { parseHTML } from 'k6/html';
+import encoding from 'k6/encoding';
 
 /**
  * Logs in to the application
  * 
+ * @param {string} url - The url to login with
  * @param {string} user - The username to login with
  * @param {string} pass - The password to login with
- * @returns {object} - The HTTP response from the login attemp
+ * @returns {string} - The Auth_token from the login attempt
  */
-export function login(user, pass) {
-    
+export function login(url, user, pass) {
+  
+    // Base64 encode the password
+    const encodedPassword = encoding.b64encode(pass);
+
     const payload = JSON.stringify({
         username: user,
-        password: pass
+        password: encodedPassword
     })
 
     const params = {
         headers: {
-            'Content-Type': 'application/x-www-form-urlencoded' 
+            'Content-Type': 'application/json' 
         },
-        timeout: '60s' // Wait 60s for the reponse before timing out
+        //timeout: '60s' // Wait 60s for the reponse before timing out
     }
 
     try {
 
-        // Step 1: Make a GET request to fetch the login page
-        let res = http.get('https://demo.opencart.com/index.php?route=account/login&language=en-gb');
-        console.log(res)
-        check(res, { 'login page loaded': (r) => r.status === 200 });
+        // Login endpoint    
+        const endpoint = `${url}/login`
 
-        // Step 2: Extract the login token from the response
-        let doc = parseHTML(res.body);
-        let loginToken = doc.find('input[name="login_token"]').attr('value');
-        console.log('Login Token:', loginToken);
+        // Send the POST request to the Login Endpoint
+        const response = http.post(endpoint, payload, params);
 
-
-        const response = http.post(`https://demo.opencart.com/index.php?route=account/login&language=en-gb&login_token=${loginToken}`, payload, params);
-
+        // Check the response
         const success = check(response, {
-            'login successful': (res) => res.status === 200,
-            'login returned JSON': (res) => res.headers === 'application/json' 
+            'status is 200': (r) => r.status === 200,
+            'login successful': (r) => r.json('Auth_token') !== ''
         });
 
         if (!success) {
             throw new Error(`Login failed with status: ${response.status}`)
         };
 
-        return response;
+        // Extract the Auth_token
+        const body = response.body
+        const authTokenMatch = body.match(/"Auth_token: ([^"]+)"/);
+        if (!authTokenMatch) {
+            throw new Error('Auth_token not found in the response body');
+        }
+        const authToken = authTokenMatch[1];
+        console.log('Auth_token: ', authToken)
+
+        // Return Auth_token    
+        return authToken;
     } catch(error) {
         throw new Error(`Request to login failed': ${error.message}`);
     }

@@ -1,16 +1,13 @@
 import { login } from "../tests/backend/api_test.js";
+import { stage } from "../environment/tenants/stage/index.js";
+import { singleUserOptions } from "../environment/options/singleUserOptions.js";
 
-const users = [
-    { username: 'johnsmith@gmail.com', password: 'Pass123' }
-];
+const options = singleUserOptions;
+const url= stage.apiTest.login.URL
+const username = stage.apiTest.login.USERNAME
+const password = stage.apiTest.login.PASSWORD
 
-export let options = {
-    vus: 1,
-    iterations: 1,
-}; 
 
-export default function(){
-
-    login(users.username, users.password);
-    
+export default function(data){
+    login(url, username, password);    
 }

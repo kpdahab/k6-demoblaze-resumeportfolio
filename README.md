@@ -1,8 +1,8 @@
-# k6-parabank-resumedemo
-https://parabank.parasoft.com
+# k6-demoblaze-resumeportfolio
+https://www.demoblaze.com/
 
 ## Overview
-This project demonstrates the use of k6 for performance testing on the Para Bank demo site. It includes tests for frontend and backend functionalities, as well as various load testing scenarios.
+This project demonstrates the use of k6 for performance testing on the Demo Blaze site. It includes tests for frontend and backend functionalities, as well as various load testing scenarios.
 
 ## Project Structure
 - **tests/**: Contains the k6 test scripts for different purposes.
@@ -52,7 +52,7 @@ This project demonstrates the use of k6 for performance testing on the Para Bank
 ## Running Tests
 1. Clone the repository:
    ```bash
-   git clone https://github.com/kpdahab/k6-parabank-resumedemo.git
-   cd k6-parabank-resumedemo
+   git clone https://github.com/kpdahab/k6-demoblaze-resumeportfolio.git
+   cd k6-demoblaze-resumeportfolio
    brew install k6
    k6 run runner/run_api_test.js
